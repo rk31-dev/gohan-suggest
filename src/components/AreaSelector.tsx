@@ -1,15 +1,13 @@
 'use client';
 
-import { Area } from '@/types/shop';
-import { areas } from '@/lib/mock-data';
-
 interface AreaSelectorProps {
-  selected: Area[];
-  onSelect: (areas: Area[]) => void;
+  selected: string[];
+  onSelect: (areas: string[]) => void;
+  areas: readonly string[];
 }
 
-export function AreaSelector({ selected, onSelect }: AreaSelectorProps) {
-  const toggleArea = (area: Area) => {
+export function AreaSelector({ selected, onSelect, areas }: AreaSelectorProps) {
+  const toggleArea = (area: string) => {
     if (selected.includes(area)) {
       onSelect(selected.filter(a => a !== area));
     } else {
@@ -20,7 +18,7 @@ export function AreaSelector({ selected, onSelect }: AreaSelectorProps) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-800">エリア</h2>
+        <h2 className="text-lg font-semibold text-gray-800">場所</h2>
         {selected.length > 0 && (
           <button
             onClick={() => onSelect([])}

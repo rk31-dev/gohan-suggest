@@ -4,17 +4,31 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Shop } from '@/types/shop';
-import { getShopById, formatRating } from '@/lib/shop';
+import { getShopByIdFromNotion } from '@/lib/notion';
 
 export default function ShopDetailPage() {
   const params = useParams();
   const router = useRouter();
   const [shop, setShop] = useState<Shop | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const result = getShopById(params.id as string);
-    setShop(result || null);
+    getShopByIdFromNotion(params.id as string).then((result) => {
+      setShop(result);
+      setLoading(false);
+    });
   }, [params.id]);
+
+  if (loading) {
+    return (
+      <main className="flex-1 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin text-5xl mb-4">🎲</div>
+          <p className="text-gray-600">読み込み中...</p>
+        </div>
+      </main>
+    );
+  }
 
   if (!shop) {
     return (
@@ -28,20 +42,6 @@ export default function ShopDetailPage() {
       </main>
     );
   }
-
-  const handleOpenMaps = () => {
-    if (shop.googleMapsUrl) {
-      window.open(shop.googleMapsUrl, '_blank');
-    } else {
-      const query = encodeURIComponent(`${shop.area} ${shop.name}`);
-      window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
-    }
-  };
-
-  const handleVisited = () => {
-    alert('「行った」を記録しました！（デモ版）');
-    router.push('/');
-  };
 
   return (
     <main className="flex-1 flex flex-col">
@@ -61,71 +61,73 @@ export default function ShopDetailPage() {
           <div className="p-5 space-y-4">
             <div className="text-center">
               <h2 className="text-2xl font-bold text-gray-900 mb-2">{shop.name}</h2>
-              <div className="text-lg">{formatRating(shop.rating)}</div>
             </div>
 
             <div className="space-y-3 text-sm border-t border-gray-100 pt-4">
-              <div className="flex items-center gap-3">
-                <span className="w-20 text-gray-500">ジャンル</span>
-                <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full font-medium">
-                  {shop.category}
-                </span>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="w-20 text-gray-500">エリア</span>
-                <span className="text-gray-800">{shop.area}</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="w-20 text-gray-500">予算</span>
-                <span className="text-gray-800">{shop.budget}</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="w-20 text-gray-500">時間帯</span>
-                <div className="flex gap-2">
-                  {shop.timeSlots.map((t) => (
-                    <span key={t} className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full font-medium">
-                      {t}
+              <div className="flex items-start gap-3">
+                <span className="w-20 text-gray-500 shrink-0">ジャンル</span>
+                <div className="flex flex-wrap gap-2">
+                  {shop.genres.map((g) => (
+                    <span key={g} className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full font-medium">
+                      {g}
                     </span>
                   ))}
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <span className="w-20 text-gray-500">住所</span>
-                <span className="text-gray-800">{shop.address}</span>
+                <span className="w-20 text-gray-500 shrink-0">場所</span>
+                <div className="flex flex-wrap gap-2">
+                  {shop.areas.map((a) => (
+                    <span key={a} className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full font-medium">
+                      {a}
+                    </span>
+                  ))}
+                </div>
               </div>
+              {shop.budget && (
+                <div className="flex items-center gap-3">
+                  <span className="w-20 text-gray-500">予算</span>
+                  <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full font-medium">
+                    {shop.budget}
+                  </span>
+                </div>
+              )}
+              {shop.timeSlots.length > 0 && (
+                <div className="flex items-start gap-3">
+                  <span className="w-20 text-gray-500 shrink-0">時間帯</span>
+                  <div className="flex gap-2">
+                    {shop.timeSlots.map((t) => (
+                      <span key={t} className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full font-medium">
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
-            {shop.memo && (
+            {shop.lunchSet && (
               <div className="bg-gray-50 rounded-xl p-4">
                 <p className="text-sm text-gray-600">
                   <span className="font-medium text-gray-700">メモ: </span>
-                  {shop.memo}
+                  {shop.lunchSet}
                 </p>
               </div>
             )}
+          </div>
 
-            <div className="flex gap-4 text-sm text-gray-500">
-              <span>行った回数: {shop.visitCount}回</span>
-              {shop.lastVisitDate && (
-                <span>最終訪問: {shop.lastVisitDate}</span>
-              )}
+          {shop.url && (
+            <div className="border-t border-gray-100 p-4">
+              <a
+                href={shop.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-3 bg-blue-500 text-white rounded-xl font-medium hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"
+              >
+                📍 Google Mapsで見る
+              </a>
             </div>
-          </div>
-
-          <div className="border-t border-gray-100 p-4 space-y-3">
-            <button
-              onClick={handleOpenMaps}
-              className="w-full py-3 bg-blue-500 text-white rounded-xl font-medium hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"
-            >
-              📍 Google Mapsで見る
-            </button>
-            <button
-              onClick={handleVisited}
-              className="w-full py-3 bg-orange-500 text-white rounded-xl font-medium hover:bg-orange-600 transition-colors flex items-center justify-center gap-2"
-            >
-              ✅ 行った！
-            </button>
-          </div>
+          )}
         </div>
       </div>
     </main>

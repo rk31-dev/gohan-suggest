@@ -1,49 +1,56 @@
-export type Category = 
-  | '和食'
-  | '洋食'
-  | '中華'
+export type Genre = 
+  | 'デザート'
+  | 'カフェ'
   | 'イタリアン'
-  | '韓国'
-  | 'その他';
+  | 'フレンチ'
+  | '中華'
+  | 'パン'
+  | '麺'
+  | 'ご飯'
+  | 'お肉'
+  | '中南米'
+  | 'お好み焼き'
+  | 'ピザ'
+  | '居酒屋'
+  | '朝ラー'
+  | '唐揚げ'
+  | '寿司'
+  | 'パスタ'
+  | 'カレー';
 
 export type Area = 
+  | '伊勢崎'
+  | '安中'
+  | '前橋'
+  | '高崎'
+  | '東京'
   | '渋谷'
-  | '新宿'
-  | '池袋'
-  | '銀座'
-  | '六本木'
-  | '表参道'
-  | 'その他';
+  | '吉岡'
+  | '太田';
 
-export type Budget = 
-  | '~¥1,000'
-  | '¥1,000-3,000'
-  | '¥3,000-5,000'
-  | '¥5,000-10,000'
-  | '¥10,000~';
+export type Budget = '1000円' | '2000円' | '4000円' | '10000円';
 
 export type TimeSlot = 'ランチ' | 'ディナー';
-
-export type Rating = 1 | 2 | 3 | 4 | 5;
 
 export interface Shop {
   id: string;
   name: string;
-  category: Category;
-  area: Area;
-  address: string;
-  budget: Budget;
-  rating: Rating;
-  memo: string;
-  visitCount: number;
-  lastVisitDate: string | null;
-  googleMapsUrl: string | null;
-  timeSlots: TimeSlot[];
+  genres: string[];
+  areas: string[];
+  budget: string | null;
+  url: string | null;
+  lunchSet: string | null;
+  timeSlots: string[];
 }
 
 export interface SuggestParams {
-  category?: Category;
-  areas?: Area[];
-  budget?: Budget;
-  timeSlot?: TimeSlot;
+  genre?: string;
+  areas?: string[];
+  budget?: string;
+  timeSlot?: string;
 }
+
+export const genres = ['デザート', 'カフェ', 'イタリアン', 'フレンチ', '中華', 'パン', '麺', 'ご飯', 'お肉', '中南米', 'お好み焼き', 'ピザ', '居酒屋', '朝ラー', '唐揚げ', '寿司', 'パスタ', 'カレー'] as const;
+export const areas = ['伊勢崎', '安中', '前橋', '高崎', '東京', '渋谷', '吉岡', '太田'] as const;
+export const budgets = ['1000円', '2000円', '4000円', '10000円'] as const;
+export const timeSlots = ['ランチ', 'ディナー'] as const;

@@ -1,14 +1,12 @@
 'use client';
 
-import { Budget } from '@/types/shop';
-import { budgets } from '@/lib/mock-data';
-
 interface BudgetSelectorProps {
-  selected: Budget | null;
-  onSelect: (budget: Budget | null) => void;
+  selected: string | null;
+  onSelect: (budget: string | null) => void;
+  budgets: readonly string[];
 }
 
-export function BudgetSelector({ selected, onSelect }: BudgetSelectorProps) {
+export function BudgetSelector({ selected, onSelect, budgets }: BudgetSelectorProps) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">

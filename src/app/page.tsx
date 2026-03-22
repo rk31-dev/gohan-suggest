@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Category, Area, Budget, TimeSlot } from '@/types/shop';
+import { genres, areas, budgets, timeSlots } from '@/types/shop';
 import { CategorySelector } from '@/components/CategorySelector';
 import { AreaSelector } from '@/components/AreaSelector';
 import { BudgetSelector } from '@/components/BudgetSelector';
@@ -11,14 +11,14 @@ import { TimeSlotSelector } from '@/components/TimeSlotSelector';
 
 export default function Home() {
   const router = useRouter();
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
-  const [selectedAreas, setSelectedAreas] = useState<Area[]>([]);
-  const [selectedBudget, setSelectedBudget] = useState<Budget | null>(null);
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState<TimeSlot | null>(null);
+  const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
+  const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
+  const [selectedBudget, setSelectedBudget] = useState<string | null>(null);
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
 
   const handleSuggest = () => {
     const params = new URLSearchParams();
-    if (selectedCategory) params.set('category', selectedCategory);
+    if (selectedGenre) params.set('genre', selectedGenre);
     if (selectedAreas.length > 0) params.set('areas', selectedAreas.join(','));
     if (selectedBudget) params.set('budget', selectedBudget);
     if (selectedTimeSlot) params.set('timeSlot', selectedTimeSlot);
@@ -41,21 +41,25 @@ export default function Home() {
           <TimeSlotSelector
             selected={selectedTimeSlot}
             onSelect={setSelectedTimeSlot}
+            timeSlots={timeSlots}
           />
 
           <CategorySelector
-            selected={selectedCategory}
-            onSelect={setSelectedCategory}
+            selected={selectedGenre}
+            onSelect={setSelectedGenre}
+            genres={genres}
           />
 
           <AreaSelector
             selected={selectedAreas}
             onSelect={setSelectedAreas}
+            areas={areas}
           />
 
           <BudgetSelector
             selected={selectedBudget}
             onSelect={setSelectedBudget}
+            budgets={budgets}
           />
 
           <div className="pt-2 space-y-3">

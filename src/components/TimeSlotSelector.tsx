@@ -1,19 +1,17 @@
 'use client';
 
-import { TimeSlot } from '@/types/shop';
-import { timeSlots } from '@/lib/mock-data';
-
 interface TimeSlotSelectorProps {
-  selected: TimeSlot | null;
-  onSelect: (timeSlot: TimeSlot | null) => void;
+  selected: string | null;
+  onSelect: (timeSlot: string | null) => void;
+  timeSlots: readonly string[];
 }
 
-const timeSlotEmoji: Record<TimeSlot, string> = {
+const timeSlotEmoji: Record<string, string> = {
   'ランチ': '☀️',
   'ディナー': '🌙',
 };
 
-export function TimeSlotSelector({ selected, onSelect }: TimeSlotSelectorProps) {
+export function TimeSlotSelector({ selected, onSelect, timeSlots }: TimeSlotSelectorProps) {
   return (
     <div className="space-y-3">
       <h2 className="text-lg font-semibold text-gray-800">時間帯</h2>

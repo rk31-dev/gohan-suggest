@@ -3,8 +3,9 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Shop, Category, Area, Budget, TimeSlot } from '@/types/shop';
-import { suggestShops, formatRating } from '@/lib/shop';
+import { Shop } from '@/types/shop';
+import { suggestShopsFromNotion, fetchShopsFromNotion } from '@/lib/notion';
+import { ShopCard } from '@/components/ShopCard';
 
 function ResultContent() {
   const router = useRouter();
@@ -12,36 +13,38 @@ function ResultContent() {
   const [shops, setShops] = useState<Shop[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const category = searchParams.get('category') as Category | null;
+  const genre = searchParams.get('genre');
   const areasParam = searchParams.get('areas');
-  const budget = searchParams.get('budget') as Budget | null;
-  const timeSlot = searchParams.get('timeSlot') as TimeSlot | null;
+  const budget = searchParams.get('budget');
+  const timeSlot = searchParams.get('timeSlot');
 
   useEffect(() => {
-    const areas = areasParam ? (areasParam.split(',') as Area[]) : [];
-    const results = suggestShops({
-      category: category || undefined,
+    const areas = areasParam ? areasParam.split(',') : [];
+    
+    suggestShopsFromNotion({
+      genre: genre || undefined,
       areas,
       budget: budget || undefined,
       timeSlot: timeSlot || undefined,
-    }, 3);
-    setShops(results);
-    setLoading(false);
+    }, 3).then((results) => {
+      setShops(results);
+      setLoading(false);
+    });
   }, [searchParams]);
 
   const handleRetry = () => {
-    const areas = areasParam ? (areasParam.split(',') as Area[]) : [];
+    const areas = areasParam ? areasParam.split(',') : [];
     setLoading(true);
-    setTimeout(() => {
-      const results = suggestShops({
-        category: category || undefined,
-        areas,
-        budget: budget || undefined,
-        timeSlot: timeSlot || undefined,
-      }, 3);
+    
+    suggestShopsFromNotion({
+      genre: genre || undefined,
+      areas,
+      budget: budget || undefined,
+      timeSlot: timeSlot || undefined,
+    }, 3).then((results) => {
       setShops(results);
       setLoading(false);
-    }, 500);
+    });
   };
 
   if (loading) {
@@ -102,46 +105,7 @@ function ResultContent() {
               <div className="absolute -left-2 -top-2 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold text-sm z-10 shadow-lg">
                 {index + 1}
               </div>
-              <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
-                <div className="p-5 space-y-4">
-                  <div className="flex items-start justify-between">
-                    <h3 className="text-xl font-bold text-gray-900">{shop.name}</h3>
-                    <span className="text-lg">{formatRating(shop.rating)}</span>
-                  </div>
-                  
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <span className="text-gray-500">ジャンル:</span>
-                      <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium">
-                        {shop.category}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-gray-500">エリア:</span>
-                      <span className="text-gray-800">{shop.area}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-gray-500">予算:</span>
-                      <span className="text-gray-800">{shop.budget}</span>
-                    </div>
-                  </div>
-
-                  {shop.memo && (
-                    <div className="pt-2 border-t border-gray-100">
-                      <p className="text-sm text-gray-600">📝 {shop.memo}</p>
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex border-t border-gray-100">
-                  <Link
-                    href={`/shop/${shop.id}`}
-                    className="flex-1 py-3 text-orange-500 font-medium hover:bg-orange-50 transition-colors text-center"
-                  >
-                    詳細を見る
-                  </Link>
-                </div>
-              </div>
+              <ShopCard shop={shop} showActions />
             </div>
           ))}
         </div>
