@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Shop } from '@/types/shop';
-import { genres, areas, budgets, timeSlots } from '@/types/shop';
+import { Shop, genres, areas, budgets, timeSlots, getMapUrl } from '@/types/shop';
 
 export default function ShopsPage() {
   const [allShops, setAllShops] = useState<Shop[]>([]);
@@ -198,16 +197,26 @@ export default function ShopsPage() {
                   {shop.lunchSet && (
                     <p className="text-xs text-gray-500">📝 {shop.lunchSet}</p>
                   )}
-                  {shop.url && (
+                  <div className="flex gap-3 mt-2">
                     <a
-                      href={shop.url}
+                      href={getMapUrl(shop)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs text-blue-500 hover:underline mt-2 inline-block"
+                      className="text-xs text-blue-500 hover:underline"
                     >
-                      🗺️ 地図を見る
+                      🗺️ 地図
                     </a>
-                  )}
+                    {shop.url && (
+                      <a
+                        href={shop.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-green-500 hover:underline"
+                      >
+                        🌐 HP
+                      </a>
+                    )}
+                  </div>
                 </div>
               ))}
 

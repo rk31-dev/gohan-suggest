@@ -1,6 +1,6 @@
 'use client';
 
-import { Shop } from '@/types/shop';
+import { Shop, getMapUrl } from '@/types/shop';
 
 interface ShopCardProps {
   shop: Shop;
@@ -61,15 +61,26 @@ export function ShopCard({ shop, showActions = false }: ShopCardProps) {
 
       {showActions && (
         <div className="flex border-t border-gray-100">
+          <a
+            href={getMapUrl(shop)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 py-3 text-blue-500 font-medium hover:bg-blue-50 transition-colors text-center"
+          >
+            🗺️ 地図
+          </a>
           {shop.url && (
-            <a
-              href={shop.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 py-3 text-blue-500 font-medium hover:bg-blue-50 transition-colors text-center"
-            >
-              🗺️ 地図を見る
-            </a>
+            <>
+              <div className="w-px bg-gray-100" />
+              <a
+                href={shop.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 py-3 text-green-500 font-medium hover:bg-green-50 transition-colors text-center"
+              >
+                🌐 HP
+              </a>
+            </>
           )}
         </div>
       )}

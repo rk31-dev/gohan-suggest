@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Shop } from '@/types/shop';
+import { Shop, getMapUrl } from '@/types/shop';
 
 export default function ShopDetailPage() {
   const params = useParams();
@@ -127,18 +127,26 @@ export default function ShopDetailPage() {
             )}
           </div>
 
-          {shop.url && (
-            <div className="border-t border-gray-100 p-4">
+          <div className="border-t border-gray-100 p-4 space-y-3">
+            <a
+              href={getMapUrl(shop)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full py-3 bg-blue-500 text-white rounded-xl font-medium hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"
+            >
+              🗺️ Google Mapsで探す
+            </a>
+            {shop.url && (
               <a
                 href={shop.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full py-3 bg-blue-500 text-white rounded-xl font-medium hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"
+                className="w-full py-3 bg-green-500 text-white rounded-xl font-medium hover:bg-green-600 transition-colors flex items-center justify-center gap-2"
               >
-                📍 Google Mapsで見る
+                🌐 HPを見る
               </a>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </main>
