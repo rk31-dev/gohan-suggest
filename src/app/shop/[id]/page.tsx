@@ -10,16 +10,21 @@ export default function ShopDetailPage() {
   const router = useRouter();
   const [shop, setShop] = useState<Shop | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetch(`/api/shop/${params.id}`)
       .then(res => res.json())
       .then((result) => {
-        setShop(result.error ? null : result);
+        if (result.success) {
+          setShop(result.data);
+        } else {
+          setError(result.error || 'お店が見つかりません');
+        }
         setLoading(false);
       })
       .catch(() => {
-        setShop(null);
+        setError('ネットワークエラーが発生しました');
         setLoading(false);
       });
   }, [params.id]);
@@ -35,12 +40,13 @@ export default function ShopDetailPage() {
     );
   }
 
-  if (!shop) {
+  if (error || !shop) {
     return (
       <main className="flex-1 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-600">お店が見つかりません</p>
-          <Link href="/" className="text-orange-500 hover:underline mt-4 inline-block">
+          <div className="text-5xl mb-4">⚠️</div>
+          <p className="text-gray-600 mb-4">{error || 'お店が見つかりません'}</p>
+          <Link href="/" className="text-orange-500 hover:underline">
             ホームに戻る
           </Link>
         </div>

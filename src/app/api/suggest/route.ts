@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { suggestShopsFromNotion } from '@/lib/notion';
+import { suggestShopsFromNotion, clearCache } from '@/lib/notion';
 
 export async function GET(request: NextRequest) {
   try {
@@ -9,6 +9,11 @@ export async function GET(request: NextRequest) {
     const budget = searchParams.get('budget') || undefined;
     const timeSlot = searchParams.get('timeSlot') || undefined;
     const count = parseInt(searchParams.get('count') || '3', 10);
+    const forceRefresh = searchParams.get('refresh') === 'true';
+
+    if (forceRefresh) {
+      clearCache();
+    }
 
     const areas = areasParam ? areasParam.split(',') : [];
 
@@ -17,11 +22,15 @@ export async function GET(request: NextRequest) {
       areas,
       budget,
       timeSlot,
-    }, count);
+    }, count, forceRefresh);
 
-    return NextResponse.json(shops);
-  } catch (error) {
-    console.error('Error suggesting shops:', error);
-    return NextResponse.json({ error: 'Failed to suggest shops' }, { status: 500 });
+    return NextResponse.json({ success: true, count: shops.length, data: shops });
+  } catch (error: any) {
+    console.error('[API ERROR] /api/suggest:', error);
+    return NextResponse.json({ 
+      success: false, 
+      error: error.message || 'Failed to suggest shops',
+      hint: 'Check /api/health for environment variable status'
+    }, { status: 500 });
   }
 }

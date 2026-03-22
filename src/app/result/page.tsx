@@ -11,13 +11,17 @@ function ResultContent() {
   const searchParams = useSearchParams();
   const [shops, setShops] = useState<Shop[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const genre = searchParams.get('genre');
   const areasParam = searchParams.get('areas');
   const budget = searchParams.get('budget');
   const timeSlot = searchParams.get('timeSlot');
 
-  useEffect(() => {
+  const fetchSuggestions = async (forceRefresh: boolean = false) => {
+    setLoading(true);
+    setError(null);
+    
     const areas = areasParam ? areasParam.split(',') : [];
     
     const params = new URLSearchParams();
@@ -25,39 +29,32 @@ function ResultContent() {
     if (areas.length > 0) params.set('areas', areas.join(','));
     if (budget) params.set('budget', budget);
     if (timeSlot) params.set('timeSlot', timeSlot);
+    if (forceRefresh) params.set('refresh', 'true');
     
-    fetch(`/api/suggest?${params.toString()}`)
-      .then(res => res.json())
-      .then((results) => {
-        setShops(results);
-        setLoading(false);
-      })
-      .catch(() => {
+    try {
+      const res = await fetch(`/api/suggest?${params.toString()}`);
+      const data = await res.json();
+      
+      if (data.success) {
+        setShops(data.data);
+      } else {
+        setError(data.error || 'データの取得に失敗しました');
         setShops([]);
-        setLoading(false);
-      });
+      }
+    } catch {
+      setError('ネットワークエラーが発生しました');
+      setShops([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSuggestions();
   }, [searchParams]);
 
   const handleRetry = () => {
-    const areas = areasParam ? areasParam.split(',') : [];
-    setLoading(true);
-    
-    const params = new URLSearchParams();
-    if (genre) params.set('genre', genre);
-    if (areas.length > 0) params.set('areas', areas.join(','));
-    if (budget) params.set('budget', budget);
-    if (timeSlot) params.set('timeSlot', timeSlot);
-    
-    fetch(`/api/suggest?${params.toString()}`)
-      .then(res => res.json())
-      .then((results) => {
-        setShops(results);
-        setLoading(false);
-      })
-      .catch(() => {
-        setShops([]);
-        setLoading(false);
-      });
+    fetchSuggestions(true);
   };
 
   if (loading) {
@@ -66,6 +63,32 @@ function ResultContent() {
         <div className="text-center">
           <div className="animate-spin text-5xl mb-4">🎲</div>
           <p className="text-gray-600">お店を探しています...</p>
+        </div>
+      </main>
+    );
+  }
+
+  if (error) {
+    return (
+      <main className="flex-1 flex items-center justify-center px-4">
+        <div className="text-center">
+          <div className="text-5xl mb-4">⚠️</div>
+          <p className="text-gray-800 font-medium mb-2">エラーが発生しました</p>
+          <p className="text-gray-500 text-sm mb-6">{error}</p>
+          <div className="flex gap-3 justify-center">
+            <button
+              onClick={handleRetry}
+              className="px-6 py-3 bg-orange-500 text-white rounded-xl font-medium hover:bg-orange-600 transition-colors"
+            >
+              再試行
+            </button>
+            <Link
+              href="/"
+              className="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-300 transition-colors"
+            >
+              条件を変更
+            </Link>
+          </div>
         </div>
       </main>
     );
@@ -130,7 +153,7 @@ function ResultContent() {
                        bg-gradient-to-r from-orange-500 to-red-500 text-white
                        hover:shadow-lg transition-all"
           >
-            🔄 もう一度提案
+            🔄 もう一度提案（最新データ）
           </button>
           <Link
             href="/shops"

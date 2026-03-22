@@ -8,22 +8,35 @@ import { genres, areas, budgets, timeSlots } from '@/types/shop';
 export default function ShopsPage() {
   const [allShops, setAllShops] = useState<Shop[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedGenre, setSelectedGenre] = useState<string>('');
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
   const [selectedBudget, setSelectedBudget] = useState<string>('');
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>('');
 
+  const fetchShops = async (forceRefresh: boolean = false) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const url = forceRefresh ? '/api/shops?refresh=true' : '/api/shops';
+      const res = await fetch(url);
+      const data = await res.json();
+      
+      if (data.success) {
+        setAllShops(data.data);
+      } else {
+        setError(data.error || 'データの取得に失敗しました');
+      }
+    } catch (e) {
+      setError('ネットワークエラーが発生しました');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    fetch('/api/shops')
-      .then(res => res.json())
-      .then((shops) => {
-        setAllShops(shops);
-        setLoading(false);
-      })
-      .catch(() => {
-        setAllShops([]);
-        setLoading(false);
-      });
+    fetchShops();
   }, []);
 
   const toggleArea = (area: string) => {
@@ -53,12 +66,36 @@ export default function ShopsPage() {
           <div className="w-12" />
         </header>
 
-        {loading ? (
-          <div className="text-center py-8">
-            <div className="animate-spin text-5xl mb-4">🎲</div>
-            <p className="text-gray-600">読み込み中...</p>
+        <button
+          onClick={() => fetchShops(true)}
+          disabled={loading}
+          className="w-full mb-4 py-2 px-4 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+        >
+          {loading ? (
+            <>
+              <span className="animate-spin">⏳</span>
+              読み込み中...
+            </>
+          ) : (
+            <>
+              🔄 最新データを取得
+            </>
+          )}
+        </button>
+
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+            ⚠️ {error}
+            <button 
+              onClick={() => fetchShops(true)}
+              className="ml-2 underline hover:no-underline"
+            >
+              再試行
+            </button>
           </div>
-        ) : (
+        )}
+
+        {!loading && !error && (
           <>
             <div className="mb-4 text-sm text-gray-500">
               {filteredShops.length}件 / {allShops.length}件
@@ -174,9 +211,15 @@ export default function ShopsPage() {
                 </div>
               ))}
 
-              {filteredShops.length === 0 && (
+              {filteredShops.length === 0 && allShops.length > 0 && (
                 <div className="text-center py-8 text-gray-500">
                   条件に合うお店がありません
+                </div>
+              )}
+
+              {allShops.length === 0 && (
+                <div className="text-center py-8 text-gray-500">
+                  お店データがありません。「最新データを取得」ボタンを押してください。
                 </div>
               )}
             </div>

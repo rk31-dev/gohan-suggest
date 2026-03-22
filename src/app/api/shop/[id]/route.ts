@@ -1,21 +1,35 @@
-import { NextResponse } from 'next/server';
-import { getShopByIdFromNotion } from '@/lib/notion';
+import { NextRequest, NextResponse } from 'next/server';
+import { getShopByIdFromNotion, clearCache } from '@/lib/notion';
 
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
-    const shop = await getShopByIdFromNotion(id);
+    const searchParams = request.nextUrl.searchParams;
+    const forceRefresh = searchParams.get('refresh') === 'true';
     
-    if (!shop) {
-      return NextResponse.json({ error: 'Shop not found' }, { status: 404 });
+    if (forceRefresh) {
+      clearCache();
     }
     
-    return NextResponse.json(shop);
-  } catch (error) {
-    console.error('Error fetching shop:', error);
-    return NextResponse.json({ error: 'Failed to fetch shop' }, { status: 500 });
+    const shop = await getShopByIdFromNotion(id, forceRefresh);
+    
+    if (!shop) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Shop not found' 
+      }, { status: 404 });
+    }
+    
+    return NextResponse.json({ success: true, data: shop });
+  } catch (error: any) {
+    console.error('[API ERROR] /api/shop/[id]:', error);
+    return NextResponse.json({ 
+      success: false, 
+      error: error.message || 'Failed to fetch shop',
+      hint: 'Check /api/health for environment variable status'
+    }, { status: 500 });
   }
 }
