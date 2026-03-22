@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Shop } from '@/types/shop';
-import { fetchShopsFromNotion } from '@/lib/notion';
 import { genres, areas, budgets, timeSlots } from '@/types/shop';
 
 export default function ShopsPage() {
@@ -15,10 +14,16 @@ export default function ShopsPage() {
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>('');
 
   useEffect(() => {
-    fetchShopsFromNotion().then((shops) => {
-      setAllShops(shops);
-      setLoading(false);
-    });
+    fetch('/api/shops')
+      .then(res => res.json())
+      .then((shops) => {
+        setAllShops(shops);
+        setLoading(false);
+      })
+      .catch(() => {
+        setAllShops([]);
+        setLoading(false);
+      });
   }, []);
 
   const toggleArea = (area: string) => {

@@ -4,7 +4,6 @@ import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Shop } from '@/types/shop';
-import { suggestShopsFromNotion, fetchShopsFromNotion } from '@/lib/notion';
 import { ShopCard } from '@/components/ShopCard';
 
 function ResultContent() {
@@ -21,30 +20,44 @@ function ResultContent() {
   useEffect(() => {
     const areas = areasParam ? areasParam.split(',') : [];
     
-    suggestShopsFromNotion({
-      genre: genre || undefined,
-      areas,
-      budget: budget || undefined,
-      timeSlot: timeSlot || undefined,
-    }, 3).then((results) => {
-      setShops(results);
-      setLoading(false);
-    });
+    const params = new URLSearchParams();
+    if (genre) params.set('genre', genre);
+    if (areas.length > 0) params.set('areas', areas.join(','));
+    if (budget) params.set('budget', budget);
+    if (timeSlot) params.set('timeSlot', timeSlot);
+    
+    fetch(`/api/suggest?${params.toString()}`)
+      .then(res => res.json())
+      .then((results) => {
+        setShops(results);
+        setLoading(false);
+      })
+      .catch(() => {
+        setShops([]);
+        setLoading(false);
+      });
   }, [searchParams]);
 
   const handleRetry = () => {
     const areas = areasParam ? areasParam.split(',') : [];
     setLoading(true);
     
-    suggestShopsFromNotion({
-      genre: genre || undefined,
-      areas,
-      budget: budget || undefined,
-      timeSlot: timeSlot || undefined,
-    }, 3).then((results) => {
-      setShops(results);
-      setLoading(false);
-    });
+    const params = new URLSearchParams();
+    if (genre) params.set('genre', genre);
+    if (areas.length > 0) params.set('areas', areas.join(','));
+    if (budget) params.set('budget', budget);
+    if (timeSlot) params.set('timeSlot', timeSlot);
+    
+    fetch(`/api/suggest?${params.toString()}`)
+      .then(res => res.json())
+      .then((results) => {
+        setShops(results);
+        setLoading(false);
+      })
+      .catch(() => {
+        setShops([]);
+        setLoading(false);
+      });
   };
 
   if (loading) {

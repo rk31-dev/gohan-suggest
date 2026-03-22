@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Shop } from '@/types/shop';
-import { getShopByIdFromNotion } from '@/lib/notion';
 
 export default function ShopDetailPage() {
   const params = useParams();
@@ -13,10 +12,16 @@ export default function ShopDetailPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getShopByIdFromNotion(params.id as string).then((result) => {
-      setShop(result);
-      setLoading(false);
-    });
+    fetch(`/api/shop/${params.id}`)
+      .then(res => res.json())
+      .then((result) => {
+        setShop(result.error ? null : result);
+        setLoading(false);
+      })
+      .catch(() => {
+        setShop(null);
+        setLoading(false);
+      });
   }, [params.id]);
 
   if (loading) {
