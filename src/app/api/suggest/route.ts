@@ -10,18 +10,24 @@ export async function GET(request: NextRequest) {
     const timeSlot = searchParams.get('timeSlot') || undefined;
     const count = parseInt(searchParams.get('count') || '3', 10);
     const forceRefresh = searchParams.get('refresh') === 'true';
+    const excludeGenresParam = searchParams.get('excludeGenres');
+    const excludeAreasParam = searchParams.get('excludeAreas');
 
     if (forceRefresh) {
       clearCache();
     }
 
     const areas = areasParam ? areasParam.split(',') : [];
+    const excludeGenres = excludeGenresParam ? excludeGenresParam.split(',') : [];
+    const excludeAreas = excludeAreasParam ? excludeAreasParam.split(',') : [];
 
     const shops = await suggestShopsFromNotion({
       genre,
       areas,
       budget,
       timeSlot,
+      excludeGenres,
+      excludeAreas,
     }, count, forceRefresh);
 
     return NextResponse.json({ success: true, count: shops.length, data: shops });

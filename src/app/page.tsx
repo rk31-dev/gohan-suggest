@@ -3,11 +3,12 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { genres, areas, budgets, timeSlots } from '@/types/shop';
+import { timeSlots, budgets, areas } from '@/types/shop';
 import { CategorySelector } from '@/components/CategorySelector';
 import { AreaSelector } from '@/components/AreaSelector';
 import { BudgetSelector } from '@/components/BudgetSelector';
 import { TimeSlotSelector } from '@/components/TimeSlotSelector';
+import { ExcludeSelector } from '@/components/ExcludeSelector';
 
 export default function Home() {
   const router = useRouter();
@@ -15,6 +16,8 @@ export default function Home() {
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
   const [selectedBudget, setSelectedBudget] = useState<string | null>(null);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
+  const [excludeGenres, setExcludeGenres] = useState<string[]>([]);
+  const [excludeAreas, setExcludeAreas] = useState<string[]>([]);
 
   const handleSuggest = () => {
     const params = new URLSearchParams();
@@ -22,6 +25,8 @@ export default function Home() {
     if (selectedAreas.length > 0) params.set('areas', selectedAreas.join(','));
     if (selectedBudget) params.set('budget', selectedBudget);
     if (selectedTimeSlot) params.set('timeSlot', selectedTimeSlot);
+    if (excludeGenres.length > 0) params.set('excludeGenres', excludeGenres.join(','));
+    if (excludeAreas.length > 0) params.set('excludeAreas', excludeAreas.join(','));
     router.push(`/result?${params.toString()}`);
   };
 
@@ -47,7 +52,6 @@ export default function Home() {
           <CategorySelector
             selected={selectedGenre}
             onSelect={setSelectedGenre}
-            genres={genres}
           />
 
           <AreaSelector
@@ -60,6 +64,13 @@ export default function Home() {
             selected={selectedBudget}
             onSelect={setSelectedBudget}
             budgets={budgets}
+          />
+
+          <ExcludeSelector
+            excludeGenres={excludeGenres}
+            excludeAreas={excludeAreas}
+            onExcludeGenreChange={setExcludeGenres}
+            onExcludeAreaChange={setExcludeAreas}
           />
 
           <div className="pt-2 space-y-3">

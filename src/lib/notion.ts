@@ -94,6 +94,8 @@ export async function suggestShopsFromNotion(params: {
   areas?: string[];
   budget?: string;
   timeSlot?: string;
+  excludeGenres?: string[];
+  excludeAreas?: string[];
 }, count: number = 3, forceRefresh: boolean = false): Promise<Shop[]> {
   const shops = await fetchShopsFromNotion(forceRefresh);
   
@@ -115,6 +117,18 @@ export async function suggestShopsFromNotion(params: {
 
   if (params.timeSlot) {
     candidates = candidates.filter(shop => shop.timeSlots.includes(params.timeSlot!));
+  }
+
+  if (params.excludeGenres && params.excludeGenres.length > 0) {
+    candidates = candidates.filter(shop => 
+      !shop.genres.some(genre => params.excludeGenres!.includes(genre))
+    );
+  }
+
+  if (params.excludeAreas && params.excludeAreas.length > 0) {
+    candidates = candidates.filter(shop => 
+      !shop.areas.some(area => params.excludeAreas!.includes(area))
+    );
   }
 
   if (candidates.length === 0) {
