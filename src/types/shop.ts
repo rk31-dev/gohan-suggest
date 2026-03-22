@@ -47,7 +47,7 @@ export function getMapUrl(shop: Shop): string {
   const query = shop.areas.length > 0 
     ? `${shop.name} ${shop.areas[0]}`
     : shop.name;
-  return `https://www.google.com/maps/search/?query=${encodeURIComponent(query)}`;
+  return `https://www.google.com/maps?q=${encodeURIComponent(query)}`;
 }
 
 export interface SuggestParams {
