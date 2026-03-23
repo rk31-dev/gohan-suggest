@@ -1,15 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { areas, budgets, timeSlots, genres, genreEmoji } from '@/types/shop';
+import { budgets, timeSlots, genres, genreEmoji, areas } from '@/types/shop';
 
 interface AdvancedSettingsProps {
-  selectedAreas: string[];
   selectedBudget: string | null;
   selectedTimeSlot: string | null;
   excludeGenres: string[];
   excludeAreas: string[];
-  onAreaChange: (areas: string[]) => void;
   onBudgetChange: (budget: string | null) => void;
   onTimeSlotChange: (timeSlot: string | null) => void;
   onExcludeGenreChange: (genres: string[]) => void;
@@ -17,26 +15,16 @@ interface AdvancedSettingsProps {
 }
 
 export function AdvancedSettings({
-  selectedAreas,
   selectedBudget,
   selectedTimeSlot,
   excludeGenres,
   excludeAreas,
-  onAreaChange,
   onBudgetChange,
   onTimeSlotChange,
   onExcludeGenreChange,
   onExcludeAreaChange,
 }: AdvancedSettingsProps) {
   const [isOpen, setIsOpen] = useState(false);
-
-  const toggleArea = (area: string) => {
-    if (selectedAreas.includes(area)) {
-      onAreaChange(selectedAreas.filter((a) => a !== area));
-    } else {
-      onAreaChange([...selectedAreas, area]);
-    }
-  };
 
   const toggleExcludeGenre = (genre: string) => {
     if (excludeGenres.includes(genre)) {
@@ -54,7 +42,7 @@ export function AdvancedSettings({
     }
   };
 
-  const hasSettings = selectedAreas.length > 0 || selectedBudget || selectedTimeSlot || 
+  const hasSettings = selectedBudget || selectedTimeSlot || 
                       excludeGenres.length > 0 || excludeAreas.length > 0;
 
   return (
@@ -106,27 +94,6 @@ export function AdvancedSettings({
                   `}
                 >
                   {slot}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <h3 className="text-sm font-medium text-gray-700 mb-2">📍 エリア</h3>
-            <div className="flex flex-wrap gap-2">
-              {areas.map((area) => (
-                <button
-                  key={area}
-                  onClick={() => toggleArea(area)}
-                  className={`
-                    px-3 py-1.5 rounded-lg text-sm font-medium transition-all border-2
-                    ${selectedAreas.includes(area)
-                      ? 'bg-orange-500 text-white border-orange-500'
-                      : 'bg-white text-gray-700 border-gray-200 hover:border-orange-300'
-                    }
-                  `}
-                >
-                  {area}
                 </button>
               ))}
             </div>
@@ -198,7 +165,6 @@ export function AdvancedSettings({
           {hasSettings && (
             <button
               onClick={() => {
-                onAreaChange([]);
                 onBudgetChange(null);
                 onTimeSlotChange(null);
                 onExcludeGenreChange([]);
