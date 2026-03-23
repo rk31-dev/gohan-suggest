@@ -3,16 +3,13 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { timeSlots, budgets, areas } from '@/types/shop';
+import { simpleCategories } from '@/types/shop';
 import { CategorySelector } from '@/components/CategorySelector';
-import { AreaSelector } from '@/components/AreaSelector';
-import { BudgetSelector } from '@/components/BudgetSelector';
-import { TimeSlotSelector } from '@/components/TimeSlotSelector';
-import { ExcludeSelector } from '@/components/ExcludeSelector';
+import { AdvancedSettings } from '@/components/AdvancedSettings';
 
 export default function Home() {
   const router = useRouter();
-  const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
   const [selectedBudget, setSelectedBudget] = useState<string | null>(null);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
@@ -21,12 +18,19 @@ export default function Home() {
 
   const handleSuggest = () => {
     const params = new URLSearchParams();
-    if (selectedGenre) params.set('genre', selectedGenre);
+    
+    if (selectedCategory) {
+      const category = simpleCategories.find(c => c.name === selectedCategory);
+      if (category) {
+        params.set('genres', category.genres.join(','));
+      }
+    }
     if (selectedAreas.length > 0) params.set('areas', selectedAreas.join(','));
     if (selectedBudget) params.set('budget', selectedBudget);
     if (selectedTimeSlot) params.set('timeSlot', selectedTimeSlot);
     if (excludeGenres.length > 0) params.set('excludeGenres', excludeGenres.join(','));
     if (excludeAreas.length > 0) params.set('excludeAreas', excludeAreas.join(','));
+    
     router.push(`/result?${params.toString()}`);
   };
 
@@ -43,32 +47,20 @@ export default function Home() {
         </header>
 
         <div className="space-y-5">
-          <TimeSlotSelector
-            selected={selectedTimeSlot}
-            onSelect={setSelectedTimeSlot}
-            timeSlots={timeSlots}
-          />
-
           <CategorySelector
-            selected={selectedGenre}
-            onSelect={setSelectedGenre}
+            selected={selectedCategory}
+            onSelect={setSelectedCategory}
           />
 
-          <AreaSelector
-            selected={selectedAreas}
-            onSelect={setSelectedAreas}
-            areas={areas}
-          />
-
-          <BudgetSelector
-            selected={selectedBudget}
-            onSelect={setSelectedBudget}
-            budgets={budgets}
-          />
-
-          <ExcludeSelector
+          <AdvancedSettings
+            selectedAreas={selectedAreas}
+            selectedBudget={selectedBudget}
+            selectedTimeSlot={selectedTimeSlot}
             excludeGenres={excludeGenres}
             excludeAreas={excludeAreas}
+            onAreaChange={setSelectedAreas}
+            onBudgetChange={setSelectedBudget}
+            onTimeSlotChange={setSelectedTimeSlot}
             onExcludeGenreChange={setExcludeGenres}
             onExcludeAreaChange={setExcludeAreas}
           />

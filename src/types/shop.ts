@@ -51,7 +51,7 @@ export function getMapUrl(shop: Shop): string {
 }
 
 export interface SuggestParams {
-  genre?: string;
+  genres?: string[];
   areas?: string[];
   budget?: string;
   timeSlot?: string;
@@ -82,17 +82,17 @@ export const genreCategories: GenreCategory[] = [
     genres: ['イタリアン', 'フレンチ', 'パスタ', 'ピザ'],
   },
   {
-    name: '中華・アジア',
+    name: '中華',
     emoji: '🥢',
     genres: ['中華', 'カレー', '中南米'],
   },
   {
-    name: '肉・揚げ物',
+    name: '肉',
     emoji: '🍖',
     genres: ['お肉', '唐揚げ'],
   },
   {
-    name: 'カフェ・軽食',
+    name: 'カフェ',
     emoji: '☕',
     genres: ['カフェ', 'パン', 'デザート'],
   },
@@ -101,6 +101,19 @@ export const genreCategories: GenreCategory[] = [
     emoji: '🍻',
     genres: ['居酒屋'],
   },
+];
+
+export type SimpleCategory = '和食' | '洋食' | '中華' | '麺' | 'ご飯' | 'パン' | 'カフェ' | 'お肉';
+
+export const simpleCategories: { name: SimpleCategory; emoji: string; genres: string[] }[] = [
+  { name: '和食', emoji: '🇯🇵', genres: ['寿司', 'ご飯', 'お好み焼き'] },
+  { name: '洋食', emoji: '🇪🇺', genres: ['イタリアン', 'フレンチ', 'パスタ', 'ピザ'] },
+  { name: '中華', emoji: '🥢', genres: ['中華', 'カレー'] },
+  { name: '麺', emoji: '🍜', genres: ['麺', '朝ラー'] },
+  { name: 'ご飯', emoji: '🍚', genres: ['ご飯', '唐揚げ'] },
+  { name: 'パン', emoji: '🥖', genres: ['パン', 'デザート'] },
+  { name: 'カフェ', emoji: '☕', genres: ['カフェ', 'デザート'] },
+  { name: 'お肉', emoji: '🥩', genres: ['お肉', '唐揚げ'] },
 ];
 
 export const genreEmoji: Record<string, string> = {

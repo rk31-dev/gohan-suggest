@@ -5,6 +5,7 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const genre = searchParams.get('genre') || undefined;
+    const genresParam = searchParams.get('genres');
     const areasParam = searchParams.get('areas');
     const budget = searchParams.get('budget') || undefined;
     const timeSlot = searchParams.get('timeSlot') || undefined;
@@ -17,12 +18,13 @@ export async function GET(request: NextRequest) {
       clearCache();
     }
 
+    const genres = genresParam ? genresParam.split(',') : genre ? [genre] : [];
     const areas = areasParam ? areasParam.split(',') : [];
     const excludeGenres = excludeGenresParam ? excludeGenresParam.split(',') : [];
     const excludeAreas = excludeAreasParam ? excludeAreasParam.split(',') : [];
 
     const shops = await suggestShopsFromNotion({
-      genre,
+      genres: genres.length > 0 ? genres : undefined,
       areas,
       budget,
       timeSlot,

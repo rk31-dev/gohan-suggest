@@ -90,7 +90,7 @@ export async function fetchShopsFromNotion(forceRefresh: boolean = false): Promi
 }
 
 export async function suggestShopsFromNotion(params: {
-  genre?: string;
+  genres?: string[];
   areas?: string[];
   budget?: string;
   timeSlot?: string;
@@ -101,8 +101,10 @@ export async function suggestShopsFromNotion(params: {
   
   let candidates = [...shops];
 
-  if (params.genre) {
-    candidates = candidates.filter(shop => shop.genres.includes(params.genre!));
+  if (params.genres && params.genres.length > 0) {
+    candidates = candidates.filter(shop => 
+      shop.genres.some(genre => params.genres!.includes(genre))
+    );
   }
 
   if (params.areas && params.areas.length > 0) {
